@@ -1,0 +1,139 @@
+//1.1
+
+task hello{
+    doLast{
+        println 'Hello World'
+    }
+}
+
+// 使用gradle -q hello   去执行
+
+
+// 日志
+// ERROR        错误消息
+// QUIET        重要消息
+// WARNNING     警告消息
+// LIFECYCLE    进度消息
+// INFO         信息消息
+// DEBUG        调试消息
+
+//2.1 字符串
+
+task printStringClass {
+    doLast{
+        def str1 = '单引号'
+        def str2 = "双引号"
+
+        println "单引号定义的字符串类型："+str1.getClass().name
+        println "双引号定义的字符串类型："+str2.getClass().name
+    }
+    
+}
+
+// ./gradlew printStringClass 
+// 单引号定义的字符串类型：java.lang.String
+// 双引号定义的字符串类型：java.lang.String
+
+task printStringVAr {
+    doLast{
+        def name = "张三"
+
+        println '单引号的变量计算：${name}'
+        println "双引号的变量计算：${name}"
+        println "双引号的变量计算：$name"
+    }
+}
+
+// 单引号的变量计算：${name}
+// 双引号的变量计算：张三
+// 双引号的变量计算：张三
+
+//2.2集合
+
+//2.2.1 List
+
+task printList {
+    doLast{
+        def numList = [1,2,3,4,5,6]
+        println numList.getClass().name
+
+        println numList[1]      //访问第二个元素
+        println numList[-1]     //访问最后一个元素
+        println numList[-2]     //访问倒数第二个元素
+        println numList[1..3]   //访问第二个到第四个元素
+
+        numList.each {
+            println it
+        }
+    }
+}
+
+//2.2.2 Map
+
+task printlnMap {
+    doLast{
+        def map1 = ['width':1024,'height':768]
+        println map1.getClass().name
+
+        println map1['width']
+        println map1.height
+
+        map1.each {
+            println "Key:${it.key},Value:${it.value}"
+        }
+    }
+}
+
+//2.3方法
+
+//2.3.1 括号是可以省略了
+
+task invokeMethod {
+    doLast{
+        method1(1,2)
+        method1 1,2
+    }
+}
+
+def method1(int a,int b){
+    println a+b
+}
+
+//2.3.2 return是可以不写的
+
+task printMethodReturn {
+    doLast{
+        def add1 = method2 1,2
+        def add2 = method2 5,3
+        println "add1:  ${add1},add2:   ${add2}"
+    }  
+}
+
+def method2 (int a, int b){
+    if(a>b){
+        a
+    }else{
+        b
+    }
+}
+
+//2.4   JavaBean
+
+task helloJavaBean {
+    doLast{
+        Person p = new Person()
+
+        println "名字是： ${p.name}"
+        p.name = "张三"
+        println "名字是： ${p.name}"
+        println "年龄是： ${p.age}"
+    }  
+}
+
+class Person {
+    private String name
+
+    public int getAge(){
+        12
+    }
+}
