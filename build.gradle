@@ -185,3 +185,30 @@ def eachMap(colsure){
         colsure(it.key,it.value)
     }
 }
+
+//2.5.3 闭包委托
+
+task helloDelegate << {
+    new Delegate().test{
+        println "thisObject:${thisObject.getClass()}"
+        println "owner:${owner.getClass()}"
+        println "delegate:${delegate.getClass()}"
+        method1()
+        it.method1()
+    }
+}
+
+def method1(){
+    println "Delegate this:${this.getClass()} in root"
+    println "method1 in root"
+}
+
+class Delegate {
+    def method1(){
+        println "Delegate this:${this.getClass()} in Delegate"
+        println "method1 in Delegate"
+    }
+    def test(Closure<Delegate> colsure){
+        colsure(this)
+    }
+}
