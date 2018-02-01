@@ -117,6 +117,24 @@ def method2 (int a, int b){
     }
 }
 
+//2.3.3 代码块可以作为参数传递
+
+// numList.each({println it})
+
+// numList.each({
+//     println it
+// })
+
+// //如果最后一个参数是闭包，可以放到方法外面
+// numList.each(){
+//     println it
+// }
+
+// //然后方法可以省略
+// numList.each {
+//     println it
+// }
+
 //2.4   JavaBean
 
 task helloJavaBean {
@@ -135,5 +153,35 @@ class Person {
 
     public int getAge(){
         12
+    }
+}
+
+//2.5 闭包
+
+//2.5.1
+task helloClosure << {
+    customEach {
+        println it
+    }
+}
+
+def customEach(colsure){
+    for(int i in 1..10){
+        colsure(i)
+    }
+}
+
+//2.5.2 向闭包传递参数
+
+task helloClosure2 << {
+    eachMap {k,v ->
+        println "${k} is ${v}"
+    }
+}
+
+def eachMap(colsure){
+    def map1 = ["name":"张三",“age”:"18"]
+    map1.each {
+        colsure(it.key,it.value)
     }
 }
