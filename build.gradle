@@ -139,7 +139,7 @@ def method2 (int a, int b){
 
 task helloJavaBean {
     doLast{
-        Person p = new Person()
+        Person1 p = new Person1()
 
         println "名字是： ${p.name}"
         p.name = "张三"
@@ -148,7 +148,7 @@ task helloJavaBean {
     }  
 }
 
-class Person {
+class Person1 {
     private String name
 
     public int getAge(){
@@ -212,3 +212,209 @@ class Delegate {
         colsure(this)
     }
 }
+
+
+
+
+task configClosure << {
+    person {
+        personName = "张三"
+        personAge = 20
+        dumpPerson()
+    }
+}
+
+class Person {
+    String personName
+    int personAge
+
+    def dumpPerson(){
+        println "name is ${personName},age is ${personAge}"
+    }
+}
+
+def person(Closure<Person> closure){
+    Person p = new Person();
+    closure.delegate = p;
+    //委托模式优先
+    closure.setResolveStrategy(Closure.DELEGATE_FIRST);
+    closure(p)
+}
+
+
+//3.4 创建一个任务
+
+task customTask1 {
+    doFirst {
+        println "customTask1:doFirst"
+    }
+    doLast {
+        println "customTask1:doLast"
+    }
+}
+
+tasks.create("customTask2") {
+    doFirst {
+        println "customTask2:doFirst"
+    }
+    doLast {
+        println "customTask2:doLast"
+    }
+}
+
+//3.5 任务依赖
+
+task ex35Hello << {
+    println 'hello'
+}
+
+task ex35World << {
+    println 'world'
+}
+
+task ex35Main(dependsOn: ex35Hello) {
+    doLast {
+        println 'main'
+    }
+}
+
+task ex35MultiTask {
+    dependsOn ex35Hello,ex35World
+    doLast {
+        println 'multiTask'
+    }
+}
+
+//3.6 任务间通过API控制、交互
+
+task ex36Hello << {
+    println 'dowLast1'
+}
+
+ex36Hello.doFirst {
+    println 'dowFirst'
+}
+
+ex36Hello.doLast {
+    println project.hasProperty('ex36Hello')
+    println 'dowLast2'
+}
+
+//3.7 自定义属性
+
+apply plugin: "java"
+
+//自定义一个Project的属性
+ext.age = 18
+
+//通过代码块同时自定义多个属性
+ext {
+    phone = 1334512
+    address = ''
+}
+
+sourceSets.all {
+    ext.resourcesDir = null
+}
+
+sourceSets {
+    main {
+        resourcesDir = 'main/res'
+    }
+    test {
+        resourcesDir = 'test/res'
+    }
+}
+
+task ex37CustomProperty << {
+    println "年龄是：${age}"
+    println "电话是：${phone}"
+    println "地址是：${address}"
+
+    sourceSets.each {
+        println "${it.name}的resourcesDir是：${it.resourcesDir}"
+    }
+}
+
+//3.8 脚本即代码，代码也是脚本
+
+def buildTime() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMdd')
+    return formattedDate
+}
+
+//4.1多种方式创建任务
+
+//1
+def Task ex41CreateTask1 = task(ex41CreateTask1)
+
+ex41CreateTask1.doLast {
+    println "创建方法原型为：Task task(String name) throws InvalidUserDataException"
+}
+
+//2
+//任务分组，类似AS右侧任务归类
+def Task ex41CreateTask2 = task(ex41CreateTask2,group: BasePlugin.BUILD_GROUP)
+
+ex41CreateTask2.doLast {
+    println "创建方法原型为：Task task(String name,Map<String,?> args) throws InvalidUserDataException"
+    println "任务分组：${ex41CreateTask2.group}"
+}
+
+//3
+task ex41CreateTask3 {
+    description '演示任务创建'
+    doLast {
+        println "创建方法原型为：Task task(String name,Closure configureClosure)"
+        println "任务描述：${description}"
+    }
+}
+
+//4.2 多种方式访问任务
+
+//1
+task ex42AccessTask1
+
+ex42AccessTask1.doLast {
+    println 'ex42AccessTask1.doLast'
+}
+
+//2
+//在Groovy中 []不是表示数组，如a[b]对应的是 a.getAt(b)
+task ex42AccessTask2
+
+tasks['ex42AccessTask2'].doLast {
+    println 'ex42AccessTask2.doLast'
+}
+
+//3
+//通过路径访问。用过路径访问有两种方式，一种是get,一种是find,区别在于get的时候找不到任务会抛出UnknownTaskException,find在找不到任务的时候会返回null
+
+task ex42AccessTask3
+tasks['ex42AccessTask3'].doLast {
+    println tasks.findByPath('ex42AccessTask3')
+    println tasks.getByPath('ex42AccessTask3')
+    println tasks.findByPath('asdf')
+}
+
+//4
+//通过名称访问
+task ex42AccessTask4
+tasks['ex42AccessTask4'].doLast {
+    println tasks.findByName('ex42AccessTask4')
+    println tasks.getByName('ex42AccessTask4')
+    println tasks.findByName('asdf')
+}
+
+//4.3任务分组和描述
+
+def Task myTask = task ex43GroupTask
+myTask.group = BasePlugin.BUILD_GROUP
+myTask.description = '这是一个构建的引导任务'
+
+myTask.doLast {
+    println "group:${group},description:${description}"
+}
+
+4.4 << 操作符
