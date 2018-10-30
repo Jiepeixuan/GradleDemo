@@ -1,0 +1,55 @@
+println 'root build script execute'
+
+// gradle -q :lib:libTask2 --configure-on-demand
+// gradle -q :lib:libTask2
+// 配置阶段 先执行执行顺序如下 父beforeProject -> 父beforeEvaluate ->子模块加载 —>父afterProject ->父afterEvaluate -> 子afterEvaluate - >父projectsEvaluated
+// 执行阶段 父whenReady -> 父beforeTask -> 子task -> 父afterTask -> ...重复上面三步 -> 父 buildFinished
+
+allprojects {
+    // 在project开始配置前调用
+    beforeEvaluate { project ->
+        println "root build : ${project.name}  beforeEvaluate"
+    }
+    // 只要project 配置成功均会调用.无论是父模块还是子模块
+    afterEvaluate { project ->
+        println "root build : ${project.name} afterEvaluate"
+    }
+}
+
+// 设置一个project 配置执行前执行的闭包回调 在beforeEvaluate之前调用
+gradle.beforeProject { project ->
+    println "root build : ${project.name} beforeProject "
+}
+
+// 设置一个project 配置完毕后立即执行的方法 在afterEvaluate 之前调用
+gradle.afterProject { project ->
+    println "root build : ${project.name} afterProject "
+    
+}
+
+// 所有的project都配置完成后的回调,此时所有的配置已经完毕,开始生成task
+gradle.projectsEvaluated { gradle ->
+    println "root build : all project projectsEvaluated "
+}
+
+// 设置一个task执行前的回调
+gradle.taskGraph.whenReady { graph ->
+    println "root build : task graph is ready"
+    graph.getAllTasks().each {
+        println "root build :task ${it.name} will execute"
+    }
+}
+// 设置一个Task执行前的回调
+gradle.taskGraph.beforeTask { task ->
+   println "root build : before ${task.name} execute" 
+}
+// 设置一个task执行完成的回调
+gradle.taskGraph.afterTask { task ->
+    println "root build : after ${task.name} execute"
+}
+// 所有的task都已经执行
+gradle.buildFinished { buildResult ->
+    println "root build : build finished"
+}
+
+println "root build size : ${allprojects.size()}"

@@ -1,0 +1,15 @@
+println 'sub build script execute'
+task subTask1 << {
+   println "${name} execute" 
+}
+task subTask2(dependsOn:'libTask1')<<{
+   println "${name} execute" 
+}
+beforeEvaluate { project ->
+    println "sub build : ${project.name} evaluate"
+}
+afterEvaluate { project ->
+    println "sub build : ${project.name} evaluate"
+}
+
+println "sub build has ${tasks.size()} tasks"

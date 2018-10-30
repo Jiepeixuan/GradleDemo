@@ -1,0 +1,16 @@
+println "setting srcipt execute "
+rootProject.name = 'gradleStudy'
+include ':lib'
+include ':sub'
+
+// 在 settings.gradle 加载并配置完成后执行闭包回调,settings对象已经配置好 并且准备开始加载构建project
+//  必须在settings中 在build.gradle中无效
+gradle.settingsEvaluated { settings ->
+    println "settings : Setting evaluated"
+}
+
+// 当settings中所有的 project都创建好时执行闭包回调
+// 必须在settings中 在build.gradle中无效
+gradle.projectsLoaded { gradle ->
+    println "settings : project loaded"
+}
